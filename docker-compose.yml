@@ -1,0 +1,58 @@
+version: "3"
+services:
+  mysql:
+    container_name: mysql
+    image: mariadb:latest
+    environment:
+      - MYSQL_ROOT_PASSWORD=P@ssw0rd
+      - MYSQL_ROOT_HOST=%
+      - MYSQL_PASSWORD_HOST=%
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - mysql-conf:/etc/mysql/conf.d
+    labels:
+      - "traefik.enable=true"
+      - "traefik.tcp.routers.mysql.entrypoints=mysql"
+      - "traefik.tcp.routers.mysql.rule=HostSNI(`*`)"
+      - "traefik.tcp.services.mysql.loadbalancer.server.port=3306"
+  mysql-replica:
+    container_name: mysql-replica
+    image: mariadb:latest
+    environment:
+      - MYSQL_ROOT_PASSWORD=P@ssw0rd
+      - MYSQL_ROOT_HOST=%
+      - MYSQL_PASSWORD_HOST=%
+    volumes:
+      - mysql-replica-data:/var/lib/mysql
+      - mysql-replica-conf:/etc/mysql/conf.d
+
+volumes:
+  mysql-data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ~/DockerVolumes/mysql/mysql/data
+  mysql-conf:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ~/DockerVolumes/mysql/mysql/conf
+  mysql-replica-data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ~/DockerVolumes/mysql/mysql-replica/data
+  mysql-replica-conf:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ~/DockerVolumes/mysql/mysql-replica/conf
+
+networks:
+  default:
+    external:
+      name: network-dev
